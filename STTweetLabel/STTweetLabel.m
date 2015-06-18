@@ -276,7 +276,6 @@
 	_cleanText = text;
 	_selectableRange = NSMakeRange(NSNotFound, 0);
 	[self determineHotWords];
-	[self verticallyAlign];
 	[self invalidateIntrinsicContentSize];
 }
 
