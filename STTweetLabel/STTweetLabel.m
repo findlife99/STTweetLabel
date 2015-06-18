@@ -28,7 +28,7 @@
 @property (nonatomic, strong) NSDictionary *attributesHashtag;
 @property (nonatomic, strong) NSDictionary *attributesLink;
 
-@property (strong) UITextView *textView;
+//@property (strong) UITextView *textView;
 
 @end
 
@@ -43,13 +43,13 @@
 
 - (id)initWithFrame:(CGRect)frame {
 	self = [super initWithFrame:frame];
-	
+
 	if (self) {
-	    [self setupLabel];
-	    [self setupTextView];
-	    [self setupURLRegularExpression];
+		[self setupLabel];
+		[self setupTextView];
+		[self setupURLRegularExpression];
 	}
-	
+
 	return self;
 }
 
@@ -57,9 +57,9 @@
 
 	self = [super initWithCoder:coder];
 	if (self) {
-	    [self setupLabel];
-	    [self setupTextView];
-	    [self setupURLRegularExpression];
+		[self setupLabel];
+		[self setupTextView];
+		[self setupURLRegularExpression];
 	}
 
 	return self;
@@ -103,15 +103,24 @@
 
 - (void)copy:(id)sender {
 	[[UIPasteboard generalPasteboard] setString:[_cleanText substringWithRange:_selectableRange]];
-	
+
 	@try {
-	    [_textStorage removeAttribute:NSBackgroundColorAttributeName range:_selectableRange];
+		[_textStorage removeAttribute:NSBackgroundColorAttributeName range:_selectableRange];
 	} @catch (NSException *exception) {
-	    NSLog(@"%@", exception);
+		NSLog(@"%@", exception);
 	}
 }
 
 #pragma mark - Setup
+
+- (void)verticallyAlign {
+	CGRect textRect = [self.layoutManager usedRectForTextContainer:self.textView.textContainer];
+
+	UIEdgeInsets inset = UIEdgeInsetsZero;
+	inset.top = self.textView.bounds.size.height / 2 - textRect.size.height / 2;
+
+	self.textView.textContainerInset = inset;
+}
 
 - (void)setupLabel {
 
@@ -120,16 +129,16 @@
 	[self setClipsToBounds:NO];
 	[self setUserInteractionEnabled:YES];
 	[self setNumberOfLines:0];
-	
+
 	_leftToRight = YES;
 	_textSelectable = YES;
 	_selectionColor = [UIColor colorWithWhite:0.9 alpha:1.0];
-	
+
 	_attributesText = @{NSForegroundColorAttributeName: self.textColor, NSFontAttributeName: [UIFont fontWithName:@"HelveticaNeue" size:14.0]};
 	_attributesHandle = @{NSForegroundColorAttributeName: [UIColor redColor], NSFontAttributeName: [UIFont fontWithName:@"HelveticaNeue" size:14.0]};
 	_attributesHashtag = @{NSForegroundColorAttributeName: [[UIColor alloc] initWithWhite:170.0/255.0 alpha:1.0], NSFontAttributeName: [UIFont fontWithName:@"HelveticaNeue" size:14.0]};
 	_attributesLink = @{NSForegroundColorAttributeName: [[UIColor alloc] initWithRed:129.0/255.0 green:171.0/255.0 blue:193.0/255.0 alpha:1.0], NSFontAttributeName: [UIFont fontWithName:@"HelveticaNeue" size:14.0]};
-	
+
 	self.validProtocols = @[@"http", @"https"];
 }
 
@@ -138,15 +147,15 @@
 - (void)determineHotWords {
 	// Need a text
 	if (_cleanText == nil)
-	    return;
+		return;
 
 	NSMutableString *tmpText = [[NSMutableString alloc] initWithString:_cleanText];
 
 	// Support RTL
 	if (!_leftToRight) {
-	    tmpText = [[NSMutableString alloc] init];
-	    [tmpText appendString:@"\u200F"];
-	    [tmpText appendString:_cleanText];
+		tmpText = [[NSMutableString alloc] init];
+		[tmpText appendString:@"\u200F"];
+		[tmpText appendString:_cleanText];
 	}
 
 	// Define a character set for hot characters (@ handle, # hashtag)
@@ -161,11 +170,11 @@
 	_rangesOfHotWords = [[NSMutableArray alloc] init];
 
 	while ([tmpText rangeOfCharacterFromSet:hotCharactersSet].location < tmpText.length) {
-	    NSRange range = [tmpText rangeOfCharacterFromSet:hotCharactersSet];
+		NSRange range = [tmpText rangeOfCharacterFromSet:hotCharactersSet];
 
-	    STTweetHotWord hotWord;
+		STTweetHotWord hotWord;
 
-	    switch ([tmpText characterAtIndex:range.location]) {
+		switch ([tmpText characterAtIndex:range.location]) {
 			case '@':
 				hotWord = STTweetHandle;
 				break;
@@ -174,27 +183,27 @@
 				break;
 			default:
 				break;
-	    }
+		}
 
-	    [tmpText replaceCharactersInRange:range withString:@"%"];
-	    // If the hot character is not preceded by a alphanumeric characater, ie email (sebastien@world.com)
-	    if (range.location > 0 && [validCharactersSet characterIsMember:[tmpText characterAtIndex:range.location - 1]])
+		[tmpText replaceCharactersInRange:range withString:@"%"];
+		// If the hot character is not preceded by a alphanumeric characater, ie email (sebastien@world.com)
+		if (range.location > 0 && [validCharactersSet characterIsMember:[tmpText characterAtIndex:range.location - 1]])
 			continue;
 
-	    // Determine the length of the hot word
-	    int length = (int)range.length;
+		// Determine the length of the hot word
+		int length = (int)range.length;
 
-	    while (range.location + length < tmpText.length) {
+		while (range.location + length < tmpText.length) {
 			BOOL charIsMember = [validCharactersSet characterIsMember:[tmpText characterAtIndex:range.location + length]];
 
 			if (charIsMember)
 				length++;
 			else
 				break;
-	    }
+		}
 
-	    // Register the hot word and its range
-	    if (length > 1)
+		// Register the hot word and its range
+		if (length > 1)
 			[_rangesOfHotWords addObject:@{@"hotWord": @(hotWord), @"range": [NSValue valueWithRange:NSMakeRange(range.location, length)]}];
 	}
 
@@ -206,19 +215,19 @@
 	NSMutableString *tmpText = [[NSMutableString alloc] initWithString:_cleanText];
 
 	[self.urlRegex enumerateMatchesInString:tmpText options:0 range:NSMakeRange(0, tmpText.length) usingBlock:^(NSTextCheckingResult *result, NSMatchingFlags flags, BOOL *stop) {
-	    NSString *protocol     = @"http";
-	    NSString *link         = [tmpText substringWithRange:result.range];
-	    NSRange  protocolRange = [link rangeOfString:@":"];
-	    if (protocolRange.location != NSNotFound) {
+		NSString *protocol     = @"http";
+		NSString *link         = [tmpText substringWithRange:result.range];
+		NSRange  protocolRange = [link rangeOfString:@":"];
+		if (protocolRange.location != NSNotFound) {
 			protocol = [link substringToIndex:protocolRange.location];
-	    }
+		}
 
-	    if ([_validProtocols containsObject:protocol.lowercaseString]) {
+		if ([_validProtocols containsObject:protocol.lowercaseString]) {
 			[_rangesOfHotWords addObject:@{ @"hotWord"  : @(STTweetLink),
-				                            @"protocol" : protocol,
-				                            @"range"    : [NSValue valueWithRange:result.range]
-			}];
-	    }
+											@"protocol" : protocol,
+											@"range"    : [NSValue valueWithRange:result.range]
+											}];
+		}
 	}];
 }
 
@@ -230,9 +239,9 @@
 	[_textStorage setAttributes:_attributesText range:NSMakeRange(0, attributedString.length)];
 
 	for (NSDictionary *dictionary in _rangesOfHotWords)  {
-	    NSRange range = [dictionary[@"range"] rangeValue];
-	    STTweetHotWord hotWord = (STTweetHotWord)[dictionary[@"hotWord"] intValue];
-	    [_textStorage setAttributes:[self attributesForHotWord:hotWord] range:range];
+		NSRange range = [dictionary[@"range"] rangeValue];
+		STTweetHotWord hotWord = (STTweetHotWord)[dictionary[@"hotWord"] intValue];
+		[_textStorage setAttributes:[self attributesForHotWord:hotWord] range:range];
 	}
 
 	[_textStorage endEditing];
@@ -242,7 +251,7 @@
 
 - (CGSize)suggestedFrameSizeToFitEntireStringConstrainedToWidth:(CGFloat)width {
 	if (_cleanText == nil)
-	    return CGSizeZero;
+		return CGSizeZero;
 
 	return [_textView sizeThatFits:CGSizeMake(width, CGFLOAT_MAX)];
 }
@@ -265,6 +274,7 @@
 	_cleanText = text;
 	_selectableRange = NSMakeRange(NSNotFound, 0);
 	[self determineHotWords];
+	[self verticallyAlign];
 	[self invalidateIntrinsicContentSize];
 }
 
@@ -275,49 +285,49 @@
 
 - (void)setAttributes:(NSDictionary *)attributes {
 	if (!attributes[NSFontAttributeName]) {
-	    NSMutableDictionary *copy = [attributes mutableCopy];
-	    copy[NSFontAttributeName] = self.font;
-	    attributes = [NSDictionary dictionaryWithDictionary:copy];
+		NSMutableDictionary *copy = [attributes mutableCopy];
+		copy[NSFontAttributeName] = self.font;
+		attributes = [NSDictionary dictionaryWithDictionary:copy];
 	}
-	
+
 	if (!attributes[NSForegroundColorAttributeName]) {
-	    NSMutableDictionary *copy = [attributes mutableCopy];
-	    copy[NSForegroundColorAttributeName] = self.textColor;
-	    attributes = [NSDictionary dictionaryWithDictionary:copy];
+		NSMutableDictionary *copy = [attributes mutableCopy];
+		copy[NSForegroundColorAttributeName] = self.textColor;
+		attributes = [NSDictionary dictionaryWithDictionary:copy];
 	}
 
 	_attributesText = attributes;
-	
+
 	[self determineHotWords];
 }
 
 - (void)setAttributes:(NSDictionary *)attributes hotWord:(STTweetHotWord)hotWord {
 	if (!attributes[NSFontAttributeName]) {
-	    NSMutableDictionary *copy = [attributes mutableCopy];
-	    copy[NSFontAttributeName] = self.font;
-	    attributes = [NSDictionary dictionaryWithDictionary:copy];
+		NSMutableDictionary *copy = [attributes mutableCopy];
+		copy[NSFontAttributeName] = self.font;
+		attributes = [NSDictionary dictionaryWithDictionary:copy];
 	}
-	
+
 	if (!attributes[NSForegroundColorAttributeName]) {
-	    NSMutableDictionary *copy = [attributes mutableCopy];
-	    copy[NSForegroundColorAttributeName] = self.textColor;
-	    attributes = [NSDictionary dictionaryWithDictionary:copy];
+		NSMutableDictionary *copy = [attributes mutableCopy];
+		copy[NSForegroundColorAttributeName] = self.textColor;
+		attributes = [NSDictionary dictionaryWithDictionary:copy];
 	}
-	
+
 	switch (hotWord)  {
-	    case STTweetHandle:
+		case STTweetHandle:
 			_attributesHandle = attributes;
 			break;
-	    case STTweetHashtag:
+		case STTweetHashtag:
 			_attributesHashtag = attributes;
 			break;
-	    case STTweetLink:
+		case STTweetLink:
 			_attributesLink = attributes;
 			break;
-	    default:
+		default:
 			break;
 	}
-	
+
 	[self determineHotWords];
 }
 
@@ -334,11 +344,11 @@
 
 - (void)setDetectionBlock:(void (^)(STTweetHotWord, NSString *, NSString *, NSRange))detectionBlock {
 	if (detectionBlock) {
-	    _detectionBlock = [detectionBlock copy];
-	    self.userInteractionEnabled = YES;
+		_detectionBlock = [detectionBlock copy];
+		self.userInteractionEnabled = YES;
 	} else {
-	    _detectionBlock = nil;
-	    self.userInteractionEnabled = NO;
+		_detectionBlock = nil;
+		self.userInteractionEnabled = NO;
 	}
 }
 
@@ -359,16 +369,16 @@
 
 - (NSDictionary *)attributesForHotWord:(STTweetHotWord)hotWord {
 	switch (hotWord) {
-	    case STTweetHandle:
+		case STTweetHandle:
 			return _attributesHandle;
 
-	    case STTweetHashtag:
+		case STTweetHashtag:
 			return _attributesHashtag;
 
-	    case STTweetLink:
+		case STTweetLink:
 			return _attributesLink;
 
-	    default:
+		default:
 			break;
 	}
 	return nil;
@@ -381,121 +391,121 @@
 #pragma mark - Retrieve word after touch event
 
 - (void)touchesBegan:(NSSet *)touches withEvent:(UIEvent *)event {
-	
+
 	if (![self getTouchedHotword:touches]) {
-	    [super touchesBegan:touches withEvent:event];
+		[super touchesBegan:touches withEvent:event];
 	}
-	
+
 	_isTouchesMoved = NO;
-	
+
 	@try {
-	    [_textStorage removeAttribute:NSBackgroundColorAttributeName range:_selectableRange];
+		[_textStorage removeAttribute:NSBackgroundColorAttributeName range:_selectableRange];
 	} @catch (NSException *exception) {
-	    NSLog(@"%@", exception);
+		NSLog(@"%@", exception);
 	}
-	
+
 	_selectableRange = NSMakeRange(0, 0);
 	_firstTouchLocation = [[touches anyObject] locationInView:_textView];
 }
 
 - (void)touchesMoved:(NSSet *)touches withEvent:(UIEvent *)event {
-	
+
 	if ([self getTouchedHotword:touches] == nil) {
-	    [super touchesMoved:touches withEvent:event];
+		[super touchesMoved:touches withEvent:event];
 	}
-	
+
 	if (!_textSelectable) {
-	    UIMenuController *menuController = [UIMenuController sharedMenuController];
-	    [menuController setMenuVisible:NO animated:YES];
-	    
-	    return;
+		UIMenuController *menuController = [UIMenuController sharedMenuController];
+		[menuController setMenuVisible:NO animated:YES];
+
+		return;
 	}
-	
+
 	_isTouchesMoved = YES;
-	
+
 	NSInteger charIndex = [self charIndexAtLocation:[[touches anyObject] locationInView:_textView]];
 	if (charIndex == NSNotFound)
-	    return;
+		return;
 
 	[_textStorage beginEditing];
 
 	@try {
-	    [_textStorage removeAttribute:NSBackgroundColorAttributeName range:_selectableRange];
+		[_textStorage removeAttribute:NSBackgroundColorAttributeName range:_selectableRange];
 	} @catch (NSException *exception) {
-	    NSLog(@"%@", exception);
+		NSLog(@"%@", exception);
 	}
-	
+
 	if (_selectableRange.length == 0) {
-	    _selectableRange = NSMakeRange(charIndex, 1);
-	    _firstCharIndex = charIndex;
+		_selectableRange = NSMakeRange(charIndex, 1);
+		_firstCharIndex = charIndex;
 	} else if (charIndex > _firstCharIndex) {
-	    _selectableRange = NSMakeRange(_firstCharIndex, charIndex - _firstCharIndex + 1);
+		_selectableRange = NSMakeRange(_firstCharIndex, charIndex - _firstCharIndex + 1);
 	} else if (charIndex < _firstCharIndex) {
-	    _firstTouchLocation = [[touches anyObject] locationInView:_textView];
-	    
-	    _selectableRange = NSMakeRange(charIndex, _firstCharIndex - charIndex);
+		_firstTouchLocation = [[touches anyObject] locationInView:_textView];
+
+		_selectableRange = NSMakeRange(charIndex, _firstCharIndex - charIndex);
 	}
 
 	NSAssert(_selectableRange.location >= 0, @"range < 0");
 	NSAssert(NSMaxRange(_selectableRange) < _textStorage.length, @"range > max");
 
 	@try {
-	    [_textStorage addAttribute:NSBackgroundColorAttributeName value:_selectionColor range:_selectableRange];
+		[_textStorage addAttribute:NSBackgroundColorAttributeName value:_selectionColor range:_selectableRange];
 	} @catch (NSException *exception) {
-	    NSLog(@"%@", exception);
+		NSLog(@"%@", exception);
 	}
 
 	[_textStorage endEditing];
 }
 
 - (void)touchesEnded:(NSSet *)touches withEvent:(UIEvent *)event {
-	
+
 	CGPoint touchLocation = [[touches anyObject] locationInView:self];
 
 	if (self.textSelectable && _isTouchesMoved) {
-	    UIMenuController *menuController = [UIMenuController sharedMenuController];
-	    [menuController setTargetRect:CGRectMake(_firstTouchLocation.x, _firstTouchLocation.y, 1.0, 1.0) inView:self];
-	    [menuController setMenuVisible:YES animated:YES];
-	    
-	    [self becomeFirstResponder];
+		UIMenuController *menuController = [UIMenuController sharedMenuController];
+		[menuController setTargetRect:CGRectMake(_firstTouchLocation.x, _firstTouchLocation.y, 1.0, 1.0) inView:self];
+		[menuController setMenuVisible:YES animated:YES];
 
-	    return;
+		[self becomeFirstResponder];
+
+		return;
 	}
-	
+
 	if (!CGRectContainsPoint(_textView.frame, touchLocation))
-	    return;
+		return;
 
 	id touchedHotword = [self getTouchedHotword:touches];
 	if(touchedHotword != nil && _detectionBlock != NULL) {
-	    NSRange range = [[touchedHotword objectForKey:@"range"] rangeValue];
-	    
-	    _detectionBlock((STTweetHotWord)[[touchedHotword objectForKey:@"hotWord"] intValue], [_cleanText substringWithRange:range], [touchedHotword objectForKey:@"protocol"], range);
+		NSRange range = [[touchedHotword objectForKey:@"range"] rangeValue];
+
+		_detectionBlock((STTweetHotWord)[[touchedHotword objectForKey:@"hotWord"] intValue], [_cleanText substringWithRange:range], [touchedHotword objectForKey:@"protocol"], range);
 	} else {
-	    [super touchesEnded:touches withEvent:event];
+		[super touchesEnded:touches withEvent:event];
 	}
 }
 
 - (NSInteger)charIndexAtLocation:(CGPoint)touchLocation {
 	NSUInteger glyphIndex = [_layoutManager glyphIndexForPoint:touchLocation inTextContainer:_textView.textContainer];
 	CGRect boundingRect = [_layoutManager boundingRectForGlyphRange:NSMakeRange(glyphIndex, 1) inTextContainer:_textView.textContainer];
-	
+
 	if (CGRectContainsPoint(boundingRect, touchLocation))
-	    return [_layoutManager characterIndexForGlyphAtIndex:glyphIndex];
+		return [_layoutManager characterIndexForGlyphAtIndex:glyphIndex];
 	else
-	    return NSNotFound;
+		return NSNotFound;
 }
 
 - (id)getTouchedHotword:(NSSet *)touches {
 	NSInteger charIndex = [self charIndexAtLocation:[[touches anyObject] locationInView:_textView]];
 
 	if (charIndex != NSNotFound) {
-	    for (id obj in _rangesOfHotWords) {
+		for (id obj in _rangesOfHotWords) {
 			NSRange range = [[obj objectForKey:@"range"] rangeValue];
 
 			if (charIndex >= range.location && charIndex < range.location + range.length) {
 				return obj;
 			}
-	    }
+		}
 	}
 
 	return nil;
