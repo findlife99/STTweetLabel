@@ -82,6 +82,8 @@
 	_textView.textContainer.lineFragmentPadding = 0;
 	_textView.textContainerInset                = UIEdgeInsetsZero;
 	_textView.userInteractionEnabled            = NO;
+	//_textView.textContainer.maximumNumberOfLines = 1;
+	//_textView.textContainer.lineBreakMode = NSLineBreakByTruncatingTail;
 	[self addSubview:_textView];
 }
 
