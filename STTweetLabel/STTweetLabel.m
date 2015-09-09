@@ -396,7 +396,7 @@
 	if (![self getTouchedHotword:touches]) {
 		[super touchesBegan:touches withEvent:event];
     } else {
-        NSLog(@"%@", [self getTouchedHotword:touches]);
+       // NSLog(@"%@", [self getTouchedHotword:touches]);
         NSDictionary *hotWord = [self getTouchedHotword:touches];
         [_textStorage setAttributes:@{NSFontAttributeName:[UIFont boldSystemFontOfSize:14.0f], NSForegroundColorAttributeName: [UIColor colorWithRed:0.757 green:0.588 blue:0.118 alpha:0.5]} range:[hotWord[@"range"] rangeValue]];
     }
