@@ -395,7 +395,11 @@
 
 	if (![self getTouchedHotword:touches]) {
 		[super touchesBegan:touches withEvent:event];
-	}
+    } else {
+        NSLog(@"%@", [self getTouchedHotword:touches]);
+        NSDictionary *hotWord = [self getTouchedHotword:touches];
+        [_textStorage setAttributes:@{NSFontAttributeName:[UIFont boldSystemFontOfSize:14.0f], NSForegroundColorAttributeName: [UIColor colorWithRed:0.757 green:0.588 blue:0.118 alpha:0.5]} range:[hotWord[@"range"] rangeValue]];
+    }
 
 	_isTouchesMoved = NO;
 
@@ -410,6 +414,8 @@
 }
 
 - (void)touchesMoved:(NSSet *)touches withEvent:(UIEvent *)event {
+
+    [self updateText];
 
 	if ([self getTouchedHotword:touches] == nil) {
 		[super touchesMoved:touches withEvent:event];
@@ -461,7 +467,9 @@
 
 - (void)touchesEnded:(NSSet *)touches withEvent:(UIEvent *)event {
 
-	CGPoint touchLocation = [[touches anyObject] locationInView:self];
+    [self updateText];
+
+    CGPoint touchLocation = [[touches anyObject] locationInView:self];
 
 	if (self.textSelectable && _isTouchesMoved) {
 		UIMenuController *menuController = [UIMenuController sharedMenuController];
@@ -484,6 +492,7 @@
 	} else {
 		[super touchesEnded:touches withEvent:event];
 	}
+
 }
 
 - (NSInteger)charIndexAtLocation:(CGPoint)touchLocation {
