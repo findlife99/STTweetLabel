@@ -26,6 +26,7 @@
 @property (nonatomic, strong) NSDictionary *attributesText;
 @property (nonatomic, strong) NSDictionary *attributesHandle;
 @property (nonatomic, strong) NSDictionary *attributesHashtag;
+@property (nonatomic, strong) NSDictionary *attributesHotWordFocus;
 @property (nonatomic, strong) NSDictionary *attributesLink;
 
 //@property (strong) UITextView *textView;
@@ -140,6 +141,7 @@
 	_attributesHandle = @{NSForegroundColorAttributeName: [UIColor redColor], NSFontAttributeName: [UIFont fontWithName:@"HelveticaNeue" size:14.0]};
 	_attributesHashtag = @{NSForegroundColorAttributeName: [[UIColor alloc] initWithWhite:170.0/255.0 alpha:1.0], NSFontAttributeName: [UIFont fontWithName:@"HelveticaNeue" size:14.0]};
 	_attributesLink = @{NSForegroundColorAttributeName: [[UIColor alloc] initWithRed:129.0/255.0 green:171.0/255.0 blue:193.0/255.0 alpha:1.0], NSFontAttributeName: [UIFont fontWithName:@"HelveticaNeue" size:14.0]};
+    _attributesHotWordFocus = @{NSForegroundColorAttributeName: [[UIColor alloc] initWithWhite:170.0/255.0 alpha:0.7], NSFontAttributeName: [UIFont fontWithName:@"HelveticaNeue" size:14.0]};
 
 	self.validProtocols = @[@"http", @"https"];
 }
@@ -325,6 +327,9 @@
 		case STTweetLink:
 			_attributesLink = attributes;
 			break;
+        case STTweetHotWordFocus:
+            _attributesHotWordFocus = attributes;
+            break;
 		default:
 			break;
 	}
@@ -379,6 +384,9 @@
 		case STTweetLink:
 			return _attributesLink;
 
+        case STTweetHotWordFocus:
+            return _attributesHotWordFocus;
+
 		default:
 			break;
 	}
@@ -393,12 +401,12 @@
 
 - (void)touchesBegan:(NSSet *)touches withEvent:(UIEvent *)event {
 
-	if (![self getTouchedHotword:touches]) {
+    NSDictionary *hotWord = [self getTouchedHotword:touches];
+
+	if (!hotWord) {
 		[super touchesBegan:touches withEvent:event];
     } else {
-       // NSLog(@"%@", [self getTouchedHotword:touches]);
-        NSDictionary *hotWord = [self getTouchedHotword:touches];
-        [_textStorage setAttributes:@{NSFontAttributeName:[UIFont boldSystemFontOfSize:14.0f], NSForegroundColorAttributeName: [UIColor colorWithRed:0.757 green:0.588 blue:0.118 alpha:0.5]} range:[hotWord[@"range"] rangeValue]];
+        [_textStorage setAttributes:[self attributesForHotWord:STTweetHotWordFocus] range: [hotWord[@"range"] rangeValue]];
     }
 
 	_isTouchesMoved = NO;
