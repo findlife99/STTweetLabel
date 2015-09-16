@@ -120,7 +120,7 @@
 	CGRect textRect = [self.layoutManager usedRectForTextContainer:self.textView.textContainer];
 
 	UIEdgeInsets inset = UIEdgeInsetsZero;
-	inset.top = self.textView.bounds.size.height / 2 - textRect.size.height / 2;
+	inset.top = MAX(0.0f, self.textView.bounds.size.height / 2 - textRect.size.height / 2);
 
 	self.textView.textContainerInset = inset;
 }
