@@ -49,6 +49,7 @@
 		[self setupLabel];
 		[self setupTextView];
 		[self setupURLRegularExpression];
+		_matchSpecifiedNamesOnly = NO;
 	}
 
 	return self;
@@ -61,6 +62,7 @@
 		[self setupLabel];
 		[self setupTextView];
 		[self setupURLRegularExpression];
+		_matchSpecifiedNamesOnly = NO;
 	}
 
 	return self;
@@ -206,9 +208,28 @@
 				break;
 		}
 
+		BOOL addHotWord = NO;
+		if (length > 1) {
+			if (hotWord == STTweetHandle) {
+				if (self.matchSpecifiedNamesOnly) {
+					NSString *handleName = [_cleanText substringWithRange:NSMakeRange(range.location, length)];
+					if ([self.matchSpecifiedNamesOnlyArray containsObject:handleName]) {
+						addHotWord = YES;
+					}
+				}
+				else {
+					addHotWord = YES;
+				}
+			}
+			else {
+				addHotWord = YES;
+			}
+		}
+
 		// Register the hot word and its range
-		if (length > 1)
+		if (addHotWord) {
 			[_rangesOfHotWords addObject:@{@"hotWord": @(hotWord), @"range": [NSValue valueWithRange:NSMakeRange(range.location, length)]}];
+		}
 	}
 
 	[self determineLinks];
@@ -249,6 +270,22 @@
 	}
 
 	[_textStorage endEditing];
+}
+
+#pragma mark - 
+@synthesize matchSpecifiedNamesOnlyArray = _matchSpecifiedNamesOnlyArray;
+- (void)setMatchSpecifiedNamesOnlyArray:(NSArray *)matchSpecifiedNamesOnlyArray
+{
+	_matchSpecifiedNamesOnlyArray = matchSpecifiedNamesOnlyArray;
+	[self setText:self.text];
+}
+
+- (NSArray *)matchSpecifiedNamesOnlyArray
+{
+	if (!_matchSpecifiedNamesOnlyArray) {
+		_matchSpecifiedNamesOnlyArray = [[NSArray alloc] init];
+	}
+	return _matchSpecifiedNamesOnlyArray;
 }
 
 #pragma mark - Public methods

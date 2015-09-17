@@ -34,4 +34,7 @@ typedef NS_ENUM(NSInteger, STTweetHotWord) {
 
 - (CGSize)suggestedFrameSizeToFitEntireStringConstrainedToWidth:(CGFloat)width;
 
+@property (nonatomic, strong) NSArray *matchSpecifiedNamesOnlyArray;
+@property (nonatomic) BOOL matchSpecifiedNamesOnly;
+
 @end
