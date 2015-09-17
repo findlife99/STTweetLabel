@@ -272,12 +272,16 @@
 	[_textStorage endEditing];
 }
 
-#pragma mark - 
+#pragma mark - matchSpecifiedNamesOnly
 @synthesize matchSpecifiedNamesOnlyArray = _matchSpecifiedNamesOnlyArray;
 - (void)setMatchSpecifiedNamesOnlyArray:(NSArray *)matchSpecifiedNamesOnlyArray
 {
 	_matchSpecifiedNamesOnlyArray = matchSpecifiedNamesOnlyArray;
 	[self setText:self.text];
+	[self handleSpaceInSpecifiedNamesOnlyArray];
+	if (self.text.length>0) {
+		[self updateText];
+	}
 }
 
 - (NSArray *)matchSpecifiedNamesOnlyArray
@@ -286,6 +290,15 @@
 		_matchSpecifiedNamesOnlyArray = [[NSArray alloc] init];
 	}
 	return _matchSpecifiedNamesOnlyArray;
+}
+
+- (void)handleSpaceInSpecifiedNamesOnlyArray
+{
+	for (NSString *string in self.matchSpecifiedNamesOnlyArray) {
+		if ([string containsString:@" "] && [string hasPrefix:@"@"]) {
+			[_rangesOfHotWords addObject:@{@"hotWord": @(STTweetHandle), @"range": [NSValue valueWithRange:[_cleanText rangeOfString:string]]}];
+		}
+	}
 }
 
 #pragma mark - Public methods

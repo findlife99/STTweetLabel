@@ -23,8 +23,8 @@
     [super viewDidLoad];
 
 	self.tweetLabel.matchSpecifiedNamesOnly = YES;
-    self.tweetLabel.text = @"Hi. This is a new tool for @you! Developed by @SebThiebaud for #iPhone #ObjC... and #iOS7 ;-) My GitHub page: https://t.co/pQXDoiYA";
-	self.tweetLabel.matchSpecifiedNamesOnlyArray = @[@"@you"];
+    self.tweetLabel.text = @"Hi. This is a new tool for @you! Developed by @Seb Thiebaud for #iPhone #ObjC... and #iOS7 ;-) My GitHub page: https://t.co/pQXDoiYA";
+	self.tweetLabel.matchSpecifiedNamesOnlyArray = @[@"@you", @"@Seb Thiebaud"];
     self.tweetLabel.textAlignment = NSTextAlignmentLeft;
 
     self.tweetLabel.detectionBlock = ^(STTweetHotWord hotWord, NSString *string, NSString *protocol, NSRange range) {
