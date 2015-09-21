@@ -26,7 +26,8 @@
 @property (nonatomic, strong) NSDictionary *attributesText;
 @property (nonatomic, strong) NSDictionary *attributesHandle;
 @property (nonatomic, strong) NSDictionary *attributesHashtag;
-@property (nonatomic, strong) NSDictionary *attributesHotWordFocus;
+@property (nonatomic, strong) NSDictionary *attributesHandleFocus;
+@property (nonatomic, strong) NSDictionary *attributesHashtagFocus;
 @property (nonatomic, strong) NSDictionary *attributesLink;
 
 //@property (strong) UITextView *textView;
@@ -143,7 +144,8 @@
 	_attributesHandle = @{NSForegroundColorAttributeName: [UIColor redColor], NSFontAttributeName: [UIFont fontWithName:@"HelveticaNeue" size:14.0]};
 	_attributesHashtag = @{NSForegroundColorAttributeName: [[UIColor alloc] initWithWhite:170.0/255.0 alpha:1.0], NSFontAttributeName: [UIFont fontWithName:@"HelveticaNeue" size:14.0]};
 	_attributesLink = @{NSForegroundColorAttributeName: [[UIColor alloc] initWithRed:129.0/255.0 green:171.0/255.0 blue:193.0/255.0 alpha:1.0], NSFontAttributeName: [UIFont fontWithName:@"HelveticaNeue" size:14.0]};
-    _attributesHotWordFocus = @{NSForegroundColorAttributeName: [[UIColor alloc] initWithWhite:170.0/255.0 alpha:0.7], NSFontAttributeName: [UIFont fontWithName:@"HelveticaNeue" size:14.0]};
+    _attributesHandleFocus = @{NSForegroundColorAttributeName: [[UIColor alloc] initWithWhite:170.0/255.0 alpha:0.7], NSFontAttributeName: [UIFont fontWithName:@"HelveticaNeue" size:14.0]};
+    _attributesHashtagFocus = @{NSForegroundColorAttributeName: [[UIColor alloc] initWithWhite:170.0/255.0 alpha:0.7], NSFontAttributeName: [UIFont fontWithName:@"HelveticaNeue" size:14.0]};
 
 	self.validProtocols = @[@"http", @"https"];
 }
@@ -377,8 +379,11 @@
 		case STTweetLink:
 			_attributesLink = attributes;
 			break;
-        case STTweetHotWordFocus:
-            _attributesHotWordFocus = attributes;
+        case STTweetHandleFocus:
+            _attributesHandleFocus = attributes;
+            break;
+        case STTweetHashtagFocus:
+            _attributesHashtagFocus = attributes;
             break;
 		default:
 			break;
@@ -424,6 +429,8 @@
 }
 
 - (NSDictionary *)attributesForHotWord:(STTweetHotWord)hotWord {
+
+    NSLog(@"set attribute for %ld", (long)hotWord);
 	switch (hotWord) {
 		case STTweetHandle:
 			return _attributesHandle;
@@ -434,8 +441,11 @@
 		case STTweetLink:
 			return _attributesLink;
 
-        case STTweetHotWordFocus:
-            return _attributesHotWordFocus;
+        case STTweetHandleFocus:
+            return _attributesHandleFocus;
+
+        case STTweetHashtagFocus:
+            return _attributesHashtagFocus;
 
 		default:
 			break;
@@ -453,10 +463,24 @@
 
     NSDictionary *hotWord = [self getTouchedHotword:touches];
 
+    NSLog(@"hot word = %@", hotWord);
+
 	if (!hotWord) {
 		[super touchesBegan:touches withEvent:event];
     } else {
-        [_textStorage setAttributes:[self attributesForHotWord:STTweetHotWordFocus] range: [hotWord[@"range"] rangeValue]];
+        STTweetHotWord type = (STTweetHotWord)[hotWord[@"hotWord"] intValue];
+        switch (type) {
+            case STTweetHandle:
+                [_textStorage setAttributes:[self attributesForHotWord:STTweetHandleFocus] range: [hotWord[@"range"] rangeValue]];
+                break;
+
+            case STTweetHashtag:
+                [_textStorage setAttributes:[self attributesForHotWord:STTweetHashtagFocus] range: [hotWord[@"range"] rangeValue]];
+                break;
+
+            default:
+                break;
+        }
     }
 
 	_isTouchesMoved = NO;
