@@ -430,7 +430,7 @@
 
 - (NSDictionary *)attributesForHotWord:(STTweetHotWord)hotWord {
 
-    NSLog(@"set attribute for %ld", (long)hotWord);
+    //NSLog(@"set attribute for %ld", (long)hotWord);
 	switch (hotWord) {
 		case STTweetHandle:
 			return _attributesHandle;
