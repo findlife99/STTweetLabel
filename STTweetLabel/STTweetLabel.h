@@ -20,6 +20,7 @@ typedef NS_ENUM(NSInteger, STTweetHotWord) {
 
 @property (strong) UITextView *textView; //make public for easier modification
 - (void)verticallyAlign;
+- (void)updateText;
 
 @property (nonatomic, strong) NSArray *validProtocols;
 @property (nonatomic, assign) BOOL leftToRight;
