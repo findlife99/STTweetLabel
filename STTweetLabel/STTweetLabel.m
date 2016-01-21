@@ -172,7 +172,7 @@
 
 	// Define a character set for the complete world (determine the end of the hot word)
 	NSMutableCharacterSet *validCharactersSet = [NSMutableCharacterSet alphanumericCharacterSet];
-	[validCharactersSet removeCharactersInString:@"!@#$%^&*()-={[]}|;:',<>.?/"];
+	[validCharactersSet removeCharactersInString:@"!@#$%^&*()={[]}|;:',<>?/"];
 	[validCharactersSet addCharactersInString:@"_"];
 
 	_rangesOfHotWords = [[NSMutableArray alloc] init];
