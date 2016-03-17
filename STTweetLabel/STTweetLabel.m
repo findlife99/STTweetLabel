@@ -193,9 +193,10 @@
 				break;
 		}
 
+        unichar tmp = [tmpText characterAtIndex:range.location];
 		[tmpText replaceCharactersInRange:range withString:@"%"];
 		// If the hot character is not preceded by a alphanumeric characater, ie email (sebastien@world.com)
-		if (range.location > 0 && [validCharactersSet characterIsMember:[tmpText characterAtIndex:range.location - 1]] && [tmpText characterAtIndex:range.location] != '#')
+		if (range.location > 0 && [validCharactersSet characterIsMember:[tmpText characterAtIndex:range.location - 1]] && tmp != '#')
 			continue;
 
 		// Determine the length of the hot word
