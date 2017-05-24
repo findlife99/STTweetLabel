@@ -280,7 +280,7 @@
 - (void)setMatchSpecifiedNamesOnlyArray:(NSArray *)matchSpecifiedNamesOnlyArray
 {
 	_matchSpecifiedNamesOnlyArray = matchSpecifiedNamesOnlyArray;
-	[self setText:self.text];
+//	[self setText:self.text];
 	[self handleSpaceInSpecifiedNamesOnlyArray];
 	if (self.text.length>0) {
 		[self updateText];
