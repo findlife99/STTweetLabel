@@ -297,6 +297,8 @@
 
 - (void)handleSpaceInSpecifiedNamesOnlyArray
 {
+    _rangesOfHotWords = [[NSMutableArray alloc] init];
+
 	for (NSString *string in self.matchSpecifiedNamesOnlyArray) {
 		if ([string hasPrefix:@"@"]) {
 			[_rangesOfHotWords addObject:@{@"hotWord": @(STTweetHandle), @"range": [NSValue valueWithRange:[_cleanText rangeOfString:string]]}];
