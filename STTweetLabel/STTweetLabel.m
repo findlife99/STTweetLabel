@@ -297,7 +297,14 @@
 
 - (void)handleSpaceInSpecifiedNamesOnlyArray
 {
-    _rangesOfHotWords = [[NSMutableArray alloc] init];
+    if (_rangesOfHotWords) {
+        for (NSInteger i = _rangesOfHotWords.count - 1; i >= 0; i --) {
+            NSDictionary *dic = _rangesOfHotWords[i];
+            if (dic[@"hotWord"] == @(STTweetHandle)) {
+                [_rangesOfHotWords removeObjectAtIndex:i];
+            }
+        }
+    }
 
 	for (NSString *string in self.matchSpecifiedNamesOnlyArray) {
 		if ([string hasPrefix:@"@"]) {
