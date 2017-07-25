@@ -546,7 +546,7 @@
 	}
 
 	NSAssert(_selectableRange.location >= 0, @"range < 0");
-	NSAssert(NSMaxRange(_selectableRange) < _textStorage.length, @"range > max");
+//	NSAssert(NSMaxRange(_selectableRange) < _textStorage.length, @"range > max");
 
 	@try {
 		[_textStorage addAttribute:NSBackgroundColorAttributeName value:_selectionColor range:_selectableRange];
